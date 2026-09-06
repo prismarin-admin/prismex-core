@@ -3,7 +3,7 @@ Prismex Core integration/staging tree
 
 [![Build Status](https://travis-ci.org/prismex-project/prismex.svg?branch=master)](https://travis-ci.org/prismex-project/prismex)
 
-https://prismex.org
+https://github.com/prismarin-admin/prismex-core
 
 What is Prismex?
 ----------------
@@ -15,7 +15,7 @@ out collectively by the network. Prismex Core is the name of open source
 software which enables the use of this currency.
 
 For more information, as well as an immediately useable, binary version of
-the Prismex Core software, see [https://prismex.org](https://prismex.org).
+the Prismex Core software, see [https://github.com/prismarin-admin/prismex-core](https://github.com/prismarin-admin/prismex-core).
 
 License
 -------
