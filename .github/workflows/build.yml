@@ -10,7 +10,7 @@ jobs:
       - name: Build
         run: ./autogen.sh && ./configure --without-gui && make -j2
       - name: Upload binary
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: prismexd
           path: src/prismexd
