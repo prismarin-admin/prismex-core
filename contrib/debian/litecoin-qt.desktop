@@ -1,0 +1,17 @@
+[Desktop Entry]
+Version=1.0
+Name=Prismex Core
+Comment=Connect to the Prismex P2P Network
+Comment[de]=Verbindung mit dem Prismex Peer-to-Peer-Netzwerk herstellen
+Comment[es]=Conectar a la red P2P de Prismex
+Comment[fr]=Se connecter au réseau pair à pair Prismex
+GenericName=Cryptocurrency Wallet
+Exec=prismex-qt %u
+Terminal=false
+Type=Application
+Icon=prismex128
+MimeType=x-scheme-handler/prismex;
+Categories=Office;Finance;Network;
+Keywords=prismex;crypto;cryptocurrency;wallet;blockchain;
+StartupNotify=true
+StartupWMClass=Prismex-qt
