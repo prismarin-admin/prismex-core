@@ -1,16 +1,56 @@
 name: build
 on: [push]
 jobs:
-  build:
+  build-linux:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install dependencies
-        run: sudo apt update && sudo apt install -y build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils python3 libdb++-dev libdb-dev libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-test-dev libboost-thread-dev libfmt-dev libminiupnpc-dev libzmq3-dev libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler
+        run: sudo apt update && sudo apt install -y build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils python3 libdb++-dev libdb-dev libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-test-dev libboost-thread-dev libminiupnpc-dev libzmq3-dev libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler libfmt-dev
       - name: Build
         run: ./autogen.sh && ./configure --without-gui --with-incompatible-bdb && make -j2
       - name: Upload binary
         uses: actions/upload-artifact@v4
         with:
-          name: prismexd
-          path: src/prismexd
+          name: prismexd-linux
+          path: |
+            src/prismexd
+            src/prismex-cli
+            src/prismex-tx
+            src/prismex-wallet
+
+  build-arm64:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install cross-compiler
+        run: sudo apt update && sudo apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils python3 libdb++-dev libdb-dev libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-test-dev libboost-thread-dev libminiupnpc-dev libzmq3-dev libfmt-dev
+      - name: Build ARM64
+        run: ./autogen.sh && ./configure --host=aarch64-linux-gnu --without-gui --with-incompatible-bdb && make -j2
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: prismexd-arm64
+          path: |
+            src/prismexd
+            src/prismex-cli
+            src/prismex-tx
+            src/prismex-wallet
+
+  build-windows:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install mingw
+        run: sudo apt update && sudo apt install -y g++-mingw-w64-x86-64 build-essential libtool autotools-dev automake pkg-config python3
+      - name: Build Windows
+        run: ./autogen.sh && ./configure --host=x86_64-w64-mingw32 --without-gui --with-incompatible-bdb && make -j2
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: prismexd-windows
+          path: |
+            src/prismexd.exe
+            src/prismex-cli.exe
+            src/prismex-tx.exe
+            src/prismex-wallet.exe
