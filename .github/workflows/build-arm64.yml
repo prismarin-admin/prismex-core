@@ -1,0 +1,25 @@
+name: build-arm64
+on: [push]
+jobs:
+  build-arm64:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils python3 libdb++-dev libdb-dev libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-test-dev libboost-thread-dev libminiupnpc-dev libzmq3-dev libfmt-dev g++-aarch64-linux-gnu
+      - name: Build ARM64
+        run: |
+          ./autogen.sh
+          ./configure --host=aarch64-linux-gnu --without-gui --with-incompatible-bdb
+          make -j2
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: prismexd-arm64
+          path: |
+            src/prismexd
+            src/prismex-cli
+            src/prismex-tx
+            src/prismex-wallet
