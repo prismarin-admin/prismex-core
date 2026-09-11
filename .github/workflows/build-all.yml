@@ -42,10 +42,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install mingw
-        run: sudo apt update && sudo apt install -y g++-mingw-w64-x86-64 build-essential libtool autotools-dev automake pkg-config python3
+      - name: Install deps
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential libtool autotools-dev automake pkg-config python3 g++-mingw-w64-x86-64 mingw-w64-tools
+          sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
+          sudo update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
       - name: Build Windows
-        run: ./autogen.sh && ./configure --host=x86_64-w64-mingw32 --without-gui --with-incompatible-bdb && make -j2
+        run: |
+          ./autogen.sh
+          ./configure --host=x86_64-w64-mingw32 --without-gui --with-incompatible-bdb --disable-tests --disable-bench
+          make -j2
       - uses: actions/upload-artifact@v4
         with:
           name: prismexd-windows
@@ -60,9 +67,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install deps
-        run: brew install automake libtool pkg-config openssl libevent boost berkeley-db@4 miniupnpc zeromq
+        run: brew install automake libtool pkg-config openssl libevent boost miniupnpc zeromq
       - name: Build macOS
-        run: ./autogen.sh && ./configure --without-gui --with-incompatible-bdb && make -j2
+        run: |
+          export PATH="/usr/local/opt/openssl@3/bin:$PATH"
+          export LDFLAGS="-L/usr/local/opt/openssl@3/lib"
+          export CPPFLAGS="-I/usr/local/opt/openssl@3/include"
+          ./autogen.sh
+          ./configure --without-gui --with-incompatible-bdb --disable-tests --disable-bench
+          make -j2
       - uses: actions/upload-artifact@v4
         with:
           name: prismexd-macos
