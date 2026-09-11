@@ -8,7 +8,7 @@ jobs:
       - name: Install deps
         run: sudo apt update && sudo apt install -y build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils python3 libdb++-dev libdb-dev libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-test-dev libboost-thread-dev libminiupnpc-dev libzmq3-dev libfmt-dev
       - name: Build
-        run: ./autogen.sh && ./configure --without-gui --with-incompatible-bdb && make -j2
+        run: ./autogen.sh && ./configure --without-gui --with-incompatible-bdb --disable-tests --disable-bench && make -j2
       - uses: actions/upload-artifact@v4
         with:
           name: prismexd-linux-x64
@@ -27,7 +27,7 @@ jobs:
         run: |
           docker run --rm --platform linux/arm64 -v $PWD:/src -w /src arm64v8/ubuntu:22.04 bash -c "
             apt update && apt install -y build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils python3 libdb++-dev libdb-dev libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-test-dev libboost-thread-dev libminiupnpc-dev libzmq3-dev libfmt-dev &&
-            ./autogen.sh && ./configure --without-gui --with-incompatible-bdb && make -j2
+            ./autogen.sh && ./configure --without-gui --with-incompatible-bdb --disable-tests --disable-bench && make -j2
           "
       - uses: actions/upload-artifact@v4
         with:
@@ -42,16 +42,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install deps
+      - name: Install mingw
         run: |
           sudo apt update
-          sudo apt install -y build-essential libtool autotools-dev automake pkg-config python3 g++-mingw-w64-x86-64 mingw-w64-tools
+          sudo apt install -y build-essential libtool autotools-dev automake pkg-config python3 g++-mingw-w64-x86-64-posix gcc-mingw-w64-x86-64-posix
           sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
           sudo update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
+      - name: Download depends
+        run: |
+          cd depends
+          make HOST=x86_64-w64-mingw32 -j2
       - name: Build Windows
         run: |
           ./autogen.sh
-          ./configure --host=x86_64-w64-mingw32 --without-gui --with-incompatible-bdb --disable-tests --disable-bench
+          CONFIG_SITE=$PWD/depends/x86_64-w64-mingw32/share/config.site ./configure --prefix=/ --without-gui --with-incompatible-bdb --disable-tests --disable-bench
           make -j2
       - uses: actions/upload-artifact@v4
         with:
@@ -67,12 +71,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install deps
-        run: brew install automake libtool pkg-config openssl libevent boost miniupnpc zeromq
+        run: |
+          brew install automake libtool pkg-config openssl@3 libevent boost miniupnpc zeromq
       - name: Build macOS
         run: |
-          export PATH="/usr/local/opt/openssl@3/bin:$PATH"
-          export LDFLAGS="-L/usr/local/opt/openssl@3/lib"
-          export CPPFLAGS="-I/usr/local/opt/openssl@3/include"
+          export PATH="/opt/homebrew/opt/openssl@3/bin:$PATH"
+          export LDFLAGS="-L/opt/homebrew/opt/openssl@3/lib"
+          export CPPFLAGS="-I/opt/homebrew/opt/openssl@3/include"
+          export PKG_CONFIG_PATH="/opt/homebrew/opt/openssl@3/lib/pkgconfig"
           ./autogen.sh
           ./configure --without-gui --with-incompatible-bdb --disable-tests --disable-bench
           make -j2
